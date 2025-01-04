@@ -1,0 +1,91 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:form="sap.ui.layout.form"
+>
+  <Dialog
+    id="helloDialog"
+    title="Create now">
+    <content>
+      <form:SimpleForm editable="true">
+        <Label text="FullName" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+
+        <Label text="Gender" />
+        <ComboBox
+          required="true"
+          selectedKey="{form>/Gender}"
+          change="onChangeValue"
+          items="{
+					path: 'master>/Gender',
+					sorter: { path: 'text' }
+				}"
+          fieldGroupIds="FormField"
+        >
+          <core:Item key="{master>key}" text="{master>text}" />
+        </ComboBox>
+
+        <Label
+          text="StartDate"
+        />
+        <DatePicker
+          required="true"
+          displayFormat="dd.MM.yyyy"
+          valueFormat="dd.MM.yyyy"
+          showCurrentDateButton="true"
+          change="onChangeValue"
+          class="sapUiSmallMarginBottom"
+          fieldGroupIds="FormField" />
+
+        <Label text="Contracttype" />
+        <ComboBox
+          required="true"
+          selectedKey="{form>/Contracttype}"
+          tooltip="Contracttype"
+          change="onChangeValue"
+          fieldGroupIds="FormField"
+        >
+          <items>
+            <core:Item
+              key="Chính thức"
+              text="Chính thức"
+            />
+            <core:Item
+              key="Thực tập"
+              text="Thực tập"
+            />
+          </items>
+        </ComboBox>
+
+        <Label
+          text="BirthDate"
+        />
+        <DatePicker
+          required="true"
+          displayFormat="dd.MM.yyyy"
+          valueFormat="dd.MM.yyyy"
+          change="onChangeValue"
+          showCurrentDateButton="true"
+          class="sapUiSmallMarginBottom"
+          fieldGroupIds="FormField"
+        />
+
+        <Label text="Address" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+
+        <Label text="Phone" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+
+        <Label text="Plans" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+
+        <Label text="Salary (VND)" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+      </form:SimpleForm>
+    </content>
+    <buttons>
+      <Button text="Close" press=".onCloseCreateRow" />
+      <Button text="Save" />
+    </buttons>
+  </Dialog>
+</core:FragmentDefinition>

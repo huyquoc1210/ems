@@ -1,0 +1,17 @@
+{
+  "extends": "plugin:@sap-ux/eslint-plugin-fiori-tools/defaultTS",
+  "root": true,
+  "rules": {
+    "comma-dangle": "off",
+    "no-console": "warn",
+    "curly": "off",
+    "max-len": "off",
+    "no-unused-vars": "warn",
+    "no-shadow": "off",
+    "max-statements": "off",
+    "complexity": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn"
+  }
+}

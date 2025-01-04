@@ -1,0 +1,312 @@
+<mvc:View
+    controllerName="sphinxjsc.com.ems.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:l="sap.ui.layout"
+    xmlns="sap.m"
+    xmlns:table="sap.ui.table"
+    xmlns:svm="sap.ui.comp.smartvariants"
+    displayBlock="true"
+    xmlns:core="sap.ui.core"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:f="sap.f"
+    xmlns:rowmodes="sap.ui.table.rowmodes">
+    <f:DynamicPage preserveHeaderStateOnScroll="true"
+        headerExpanded="{view>/headerExpanded}"
+        showFooter="true"
+        fitContent="true"
+    >
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <svm:SmartVariantManagement
+                        id="svm"
+                        showExecuteOnSelection="true"
+                    />
+                </f:heading>
+                <f:expandedContent>
+                    <Label
+                        id="expandedLabel"
+                        text="No filters active"
+                    />
+                </f:expandedContent>
+                <f:snappedContent>
+                    <Label
+                        id="snappedLabel"
+                        text="No filters active"
+                    />
+                </f:snappedContent>
+            </f:DynamicPageTitle>
+        </f:title>
+        <f:header>
+            <f:DynamicPageHeader>
+                <f:content>
+                    <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="false"
+                        search=".onSearch" filterChange=".onFilterChange"
+                        afterVariantLoad=".onAfterVariantLoad">
+                        <fb:filterGroupItems>
+                            <fb:FilterGroupItem name="Employeeid"
+                                label="Employeeid"
+                                groupName="Group1"
+                                visibleInFilterBar="true">
+                                <fb:control>
+                                    <Input
+                                        name="Employeeid"
+                                        change=".onFieldChange"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem name="Fullname"
+                                label="Fullname"
+                                groupName="Group1"
+                                visibleInFilterBar="true">
+                                <fb:control>
+                                    <Input
+                                        name="Fullname"
+                                        change=".onFieldChange"
+                                    />
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                            <fb:FilterGroupItem name="Gender"
+                                label="Gender"
+                                groupName="Group1"
+                                visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox
+                                        name="Gender"
+                                        selectionChange=".onFieldChange"
+                                        items="{
+                                            path: 'master>/Gender',
+                                            templateShareable: true
+                                        }"
+                                    >
+                                        <core:Item
+                                            key="{master>key}"
+                                            text="{master>text}"
+                                        />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </f:content>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
+            <table:Table
+                id="table"
+                enableSelectAll="true"
+                selectionMode="Single"
+                enableBusyIndicator="true"
+                rowSelectionChange="onRowSelectionChange"
+                rows="{table>/rows}"
+                busy="{table>/busy}"
+                busyIndicatorDelay="{view>/delay}"
+                rowActionCount="2"
+            >
+                <table:extension>
+                    <OverflowToolbar class="sapMTBHeader-CTX">
+                        <Title text="Employee List" />
+                        <ToolbarSpacer />
+                        <Button
+                            icon="sap-icon://add"
+                            tooltip="Add Row"
+                            text="Add Row"
+                            type="Emphasized"
+                            press="onOpenCreateRow"
+                        />
+                        <Button
+                            icon="sap-icon://delete"
+                            tooltip="Delete Row"
+                            text="Delete Row"
+                            type="Reject"
+                            enabled="{= ${table>/selectedRows}.length > 0 }"
+                            press="onDeleteRow"
+                        />
+                        <Button
+                            icon="sap-icon://excel-attachment"
+                            tooltip="Export to Excel"
+                            press="onExportExcel"
+                        />
+                    </OverflowToolbar>
+                </table:extension>
+                <table:noData>
+                    <IllustratedMessage
+                        illustrationType="sapIllus-NoSearchResults"
+                        enableVerticalResponsiveness="true"
+                        enableDefaultTitleAndDescription="false"
+                        title="No results found"
+                        description="Try changing your search criteria."
+                    />
+                </table:noData>
+                <table:columns>
+                    <table:Column
+                        id="Employeeid"
+                        width="7.5rem"
+                    >
+                        <Label
+                            text="Employeeid"
+                            tooltip="Employeeid"
+                        />
+                        <table:template>
+                            <ObjectIdentifier
+                                title="{table>Employeeid}"
+                                titleActive="true"
+                                titlePress="onOpenRowDetail"
+                            />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Fullname"
+                        width="10rem"
+                    >
+                        <Label
+                            text="Fullname"
+                            tooltip="Fullname"
+                        />
+                        <table:template>
+                            <Text text="{table>Fullname}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Gender"
+                        width="5rem"
+                    >
+                        <Label
+                            text="Gender"
+                            tooltip="Gender"
+                        />
+                        <table:template>
+                            <Text text="{table>Gender}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="StartDate"
+                        width="6rem"
+                    >
+                        <Label
+                            text="StartDate"
+                            tooltip="StartDate"
+                        />
+                        <table:template>
+                            <Text text="{table>StartDate}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Contracttype"
+                        width="7.5rem"
+                    >
+                        <Label
+                            text="Contracttype"
+                            tooltip="Contracttype"
+                        />
+                        <table:template>
+                            <Text text="{table>Contracttype}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Birthdate"
+                        width="6rem"
+                    >
+                        <Label
+                            text="Birthdate"
+                            tooltip="Birthdate"
+                        />
+                        <table:template>
+                            <Text text="{table>Birthdate}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Address"
+                        width="15rem"
+                    >
+                        <Label
+                            text="Address"
+                            tooltip="Address"
+                        />
+                        <table:template>
+                            <Text text="{table>Address}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Phone"
+                        width="6.5rem"
+                    >
+                        <Label
+                            text="Phone"
+                            tooltip="Phone"
+                        />
+                        <table:template>
+                            <Text text="{table>Phone}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Plans"
+                        width="8rem"
+                    >
+                        <Label
+                            text="Plans"
+                            tooltip="Plans"
+                        />
+                        <table:template>
+                            <Text text="{table>Plans}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column
+                        id="Salary"
+                        width="7.5rem"
+                    >
+                        <Label
+                            text="Salary"
+                            tooltip="Salary"
+                        />
+                        <table:template>
+                            <Text
+                                text="{
+                                    path: 'table>Salary',
+                                    type: 'sap.ui.model.type.Float',
+                                    formatOptions: {
+                                        decimalSeparator: ',',
+                                        groupingSeparator: '.',
+                                        emptyString: '',
+                                        parseAsString: true,
+                                        pattern: '#,###.##'
+                                    }
+                                }"
+                            />
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+                <table:rowActionTemplate>
+                    <table:RowAction>
+                        <table:RowActionItem
+                            type="Custom"
+                            text="Edit"
+                            icon="sap-icon://edit"
+                            press="onOpenEditRow"
+                        />
+                        <table:RowActionItem
+                            type="Delete"
+                            text="Delete"
+                            press="onDeleteRow"
+                        />
+                    </table:RowAction>
+                </table:rowActionTemplate>
+                <table:rowMode>
+                    <rowmodes:Auto />
+                </table:rowMode>
+            </table:Table>
+        </f:content>
+        <f:footer></f:footer>
+
+    </f:DynamicPage>
+</mvc:View>

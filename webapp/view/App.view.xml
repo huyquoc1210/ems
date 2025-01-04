@@ -1,0 +1,9 @@
+<mvc:View controllerName="sphinxjsc.com.ems.controller.App"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <App id="app"
+        busy="false"
+        busyIndicatorDelay="0">
+    </App>
+</mvc:View>
