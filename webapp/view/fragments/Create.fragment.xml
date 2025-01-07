@@ -4,17 +4,20 @@
   xmlns:form="sap.ui.layout.form"
 >
   <Dialog
-    id="helloDialog"
-    title="Create now">
+    id='createRow'
+    title="Create now"
+    afterClose="onAfterCloseCreate"
+  >
     <content>
       <form:SimpleForm editable="true">
         <Label text="FullName" />
-        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField"
+          value="{form>Fullname}" />
 
         <Label text="Gender" />
         <ComboBox
           required="true"
-          selectedKey="{form>/Gender}"
+          selectedKey="{form>Gender}"
           change="onChangeValue"
           items="{
 					path: 'master>/Gender',
@@ -29,6 +32,7 @@
           text="StartDate"
         />
         <DatePicker
+          value="{form>StartDate}"
           required="true"
           displayFormat="dd.MM.yyyy"
           valueFormat="dd.MM.yyyy"
@@ -40,7 +44,7 @@
         <Label text="Contracttype" />
         <ComboBox
           required="true"
-          selectedKey="{form>/Contracttype}"
+          selectedKey="{form>Contracttype}"
           tooltip="Contracttype"
           change="onChangeValue"
           fieldGroupIds="FormField"
@@ -61,6 +65,7 @@
           text="BirthDate"
         />
         <DatePicker
+          value="{form>Birthdate}"
           required="true"
           displayFormat="dd.MM.yyyy"
           valueFormat="dd.MM.yyyy"
@@ -71,21 +76,23 @@
         />
 
         <Label text="Address" />
-        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField"
+          value="{form>Address}" />
 
         <Label text="Phone" />
-        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" value="{form>Phone}" />
 
         <Label text="Plans" />
-        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" value="{form>Plans}" />
 
         <Label text="Salary (VND)" />
-        <Input required="true" change="onChangeValue" fieldGroupIds="FormField" />
+        <Input required="true" change="onChangeValue" fieldGroupIds="FormField"
+          value="{form>Salary}" />
       </form:SimpleForm>
     </content>
     <buttons>
-      <Button text="Close" press=".onCloseCreateRow" />
-      <Button text="Save" />
+      <Button text="Close" press="onCloseCreateRow" />
+      <Button text="Save" press="onCreateRow" />
     </buttons>
   </Dialog>
 </core:FragmentDefinition>

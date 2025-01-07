@@ -1,9 +1,10 @@
 <mvc:View controllerName="sphinxjsc.com.ems.controller.App"
+    xmlns:html="http://www.w3.org/1999/xhtml"
     displayBlock="true"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m">
     <App id="app"
-        busy="false"
-        busyIndicatorDelay="0">
+        busy="{appView>/busy}"
+        busyIndicatorDelay="{appView>/delay}">
     </App>
 </mvc:View>

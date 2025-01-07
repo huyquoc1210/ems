@@ -79,14 +79,12 @@
     "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",
-        "controlAggregation": "pages",
-        "controlId": "app",
-        "transition": "slide",
-        "type": "View",
         "viewType": "XML",
-        "path": "sphinxjsc.com.ems.view",
         "async": true,
         "viewPath": "sphinxjsc.com.ems.view",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "clearControlAggregation": false,
         "bypassed": {
           "target": "notFound"
         }

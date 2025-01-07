@@ -11,22 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "sphinxjsc/com/ems/*": [
-        "./webapp/*"
-      ],
-      "unit/*": [
-        "./webapp/test/unit/*"
-      ],
-      "integration/*": [
-        "./webapp/test/integration/*"
-      ]
+      "sphinxjsc/com/ems/*": ["./webapp/*"],
+      "unit/*": ["./webapp/test/unit/*"],
+      "integration/*": ["./webapp/test/integration/*"]
     },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@sapui5/types"
-    ]
+    "typeRoots": ["./node_modules/@types", "./node_modules/@sapui5/types"],
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./webapp/**/*"
-  ]
+  "include": ["./webapp/**/*"]
 }

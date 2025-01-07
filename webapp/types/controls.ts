@@ -5,6 +5,7 @@ import SimpleType from "sap/ui/model/SimpleType";
 export interface BindingTarget<T> {
   name: string;
   path: string;
+  target: string;
   processor?: MessageProcessor;
   bindingType?: SimpleType;
   binding: Nullable<PropertyBinding>;
