@@ -38,7 +38,7 @@
             </f:DynamicPageTitle>
         </f:title>
         <f:header>
-            <f:DynamicPageHeader>
+            <f:DynamicPageHeader pinnable="true">
                 <f:content>
                     <fb:FilterBar id="filterbar" persistencyKey="myPersKey" useToolbar="false"
                         search=".onSearch" filterChange=".onFilterChange"
@@ -306,7 +306,7 @@
                 </table:rowMode>
             </table:Table>
         </f:content>
-        <f:footer></f:footer>
+        <f:footer />
 
     </f:DynamicPage>
 </mvc:View>

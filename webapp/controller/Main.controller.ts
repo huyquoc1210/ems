@@ -1,3 +1,4 @@
+import xorBy from "lodash.xorby";
 import type Button from "sap/m/Button";
 import type { Button$PressEvent } from "sap/m/Button";
 import type ComboBox from "sap/m/ComboBox";
@@ -16,12 +17,21 @@ import type { ODataError, ODataResponse } from "sphinxjsc/com/ems/types/odata";
 import type { EmployeeItem } from "sphinxjsc/com/ems/types/pages/main";
 import Numeric from "sphinxjsc/com/ems/utils/Number";
 import Base from "./Base.controller";
+import type { Route$MatchedEvent } from "sap/ui/core/routing/Route";
+import type { Table$RowSelectionChangeEvent } from "sap/ui/table/Table";
+import type Table from "sap/ui/table/Table";
+import type Label from "sap/m/Label";
+import { EdmType } from "sap/ui/export/library";
+import type { ExcelColumn } from "sphinxjsc/com/ems/types/export";
+import type { Dict } from "sphinxjsc/com/ems/types/utlis";
+import Spreadsheet from "sap/ui/export/Spreadsheet";
 
 /**
  * @namespace sphinxjsc.com.ems.controller
  */
 export default class Main extends Base {
   private view: View;
+  private table: Table;
 
   // Fragments
   private createRowDialog: Dialog;
@@ -33,6 +43,10 @@ export default class Main extends Base {
 
   public override onInit(): void {
     this.view = <View>this.getView();
+    this.table = this.getControlById("table");
+
+    // Messaging
+    this.MessageManager = this.getMessageManager();
 
     this.setModel(new JSONModel({}), "form");
 
@@ -69,6 +83,99 @@ export default class Main extends Base {
     );
   }
 
+  public async onExportExcel() {
+    const binding = <EmployeeItem[]>this.getModel("table").getProperty("/rows");
+
+    if (!binding.length) {
+      MessageToast.show("No data to export.");
+      return;
+    }
+
+    const dataSource = binding.map((item) => {
+      return Object.keys(item).reduce<Dict>((acc, key) => {
+        const value = item[key as keyof EmployeeItem];
+
+        switch (key) {
+          case "__metadata": {
+            break;
+          }
+          case "StartDate":
+          case "Birthdate": {
+            acc[key] = this.formatter.toDate(value, "dd.MM.yyyy");
+            break;
+          }
+          case "Salary": {
+            acc[key] = Numeric.toNumber(value);
+            break;
+          }
+          default: {
+            acc[key] = value;
+            break;
+          }
+        }
+
+        return acc;
+      }, {});
+    });
+
+    const columns = this.table.getColumns().map<ExcelColumn>((column) => {
+      const columnId = this.getControlId(column);
+      const label = (<Label>column.getLabel()).getText();
+      const width = column.getWidth();
+
+      switch (columnId) {
+        case "StartDate":
+        case "Birthdate": {
+          return {
+            label,
+            property: columnId,
+            type: EdmType.Date,
+            width,
+          };
+        }
+        case "Salary": {
+          return {
+            label,
+            property: columnId,
+            type: EdmType.Number,
+            delimiter: true,
+            scale: 0,
+            width,
+          };
+        }
+        default: {
+          return {
+            label,
+            property: columnId,
+            type: EdmType.String,
+            width,
+          };
+        }
+      }
+    });
+
+    const sheet = new Spreadsheet({
+      workbook: {
+        columns,
+        hierarchyLevel: "Level",
+        context: {
+          sheetName: "Employee",
+        },
+      },
+      dataSource,
+      fileName: `Employee_Export_${this.formatter.now()}`,
+      worker: true,
+    });
+
+    try {
+      await sheet.build();
+    } catch (error) {
+      MessageToast.show("An error occurred, please try again later");
+    } finally {
+      sheet.destroy();
+    }
+  }
+
   public onCloseCreateRow() {
     this.createRowDialog?.close();
   }
@@ -82,6 +189,46 @@ export default class Main extends Base {
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  private setViewBusy(isBusy: boolean) {
+    this.getModel("table").setProperty("/busy", isBusy);
+  }
+
+  private onObjectMatched(event: Route$MatchedEvent) {
+    this.getMetadataLoaded()
+      .then(() => {
+        this.onGetData();
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        this.setViewBusy(false);
+      });
+  }
+
+  public onRowSelectionChange(event: Table$RowSelectionChangeEvent) {
+    const tableModel = this.getModel("table");
+    const rows = <EmployeeItem[]>tableModel.getProperty("/rows");
+
+    const prevSelectedRows = <EmployeeItem[]>tableModel.getProperty("/selectedRows");
+    const selectedRow = <EmployeeItem>event.getParameter("rowContext")?.getObject();
+    const selectAll = event.getParameter("selectAll");
+    const indices = this.table.getSelectedIndices();
+
+    tableModel.setProperty("/selectedIndices", [...indices]);
+
+    if (selectAll) {
+      tableModel.setProperty("/selectedRows", rows);
+    } else if (!selectedRow || !indices.length) {
+      tableModel.setProperty("/selectedRows", []);
+    } else {
+      // const nextRows = xorBy(prevSelectedRows, [selectedRow], (item) => item.Employeeid); // MultiToggle
+      const nextRows = xorBy(prevSelectedRows, [selectedRow], (item) => item.Employeeid).slice(-1); // Single
+
+      tableModel.setProperty("/selectedRows", nextRows);
     }
   }
 
@@ -248,6 +395,7 @@ export default class Main extends Base {
         void bindingType.validateValue(value);
       } catch (error) {
         const { message } = <Error>error;
+
         this.addMessage({
           message,
           type: "Error",

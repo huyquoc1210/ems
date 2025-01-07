@@ -17,6 +17,7 @@ import type SimpleType from "sap/ui/model/SimpleType";
 import Message from "sap/ui/core/message/Message";
 import type ODataModel from "sap/ui/model/odata/v2/ODataModel";
 import UIComponent from "sap/ui/core/UIComponent";
+import Formatter from "sphinxjsc/com/ems/utils/Formatter";
 
 /**
  * @namespace sphinxjsc.com.ems.controller
@@ -30,6 +31,8 @@ export default class Base extends Controller {
     "sap.m.MultiInput",
     "sap.m.DatePicker",
   ];
+
+  public formatter = Formatter;
 
   protected getRouter() {
     return UIComponent.getRouterFor(this);
@@ -45,6 +48,15 @@ export default class Base extends Controller {
 
   public setModel(model: Model, name?: string) {
     this.getView()?.setModel(model, name);
+  }
+
+  public getControlId<T = string>(control: UI5Element): T;
+  // eslint-disable-next-line no-dupe-class-members
+  public getControlId<T = string | null>(control?: UI5Element): T;
+  // eslint-disable-next-line no-dupe-class-members
+  public getControlId<T = string | null>(control?: UI5Element) {
+    if (!control) return null;
+    return this.getView()?.getLocalId(control.getId()) as T;
   }
 
   protected getBindingTarget<T extends Dict>(source: Control) {
@@ -79,6 +91,10 @@ export default class Base extends Controller {
     };
 
     return value;
+  }
+
+  protected getMetadataLoaded() {
+    return this.getComponentModel().metadataLoaded();
   }
 
   protected getControlsByFieldGroup<T extends Control>(props: {
