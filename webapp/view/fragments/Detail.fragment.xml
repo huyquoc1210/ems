@@ -1,0 +1,129 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:form="sap.ui.layout.form"
+>
+  <Dialog
+    id="rowDetail"
+    title="Row detail"
+    afterClose="onAfterCloseRowDetail"
+  >
+    <content>
+      <form:SimpleForm editable="true">
+        <Label text="Employeeid" />
+        <Input
+          value="{table>Employeeid}"
+          editable="false"
+          tooltip="Employeeid"
+        />
+
+        <Label text="Fullname" />
+        <Input
+          value="{table>Fullname}"
+          editable="false"
+          tooltip="Fullname"
+        />
+
+        <Label text="Gender" />
+        <ComboBox
+          editable="false"
+          selectedKey="{table>Gender}"
+          tooltip="Gender"
+          items="{
+                        path: 'master>/Gender',
+                        templateShareable: false
+                    }"
+        >
+          <items>
+            <core:Item
+              key="{master>key}"
+              text="{master>text}"
+            />
+          </items>
+        </ComboBox>
+
+        <Label text="StartDate" />
+        <DatePicker
+          value="{table>StartDate}"
+          editable="false"
+          displayFormat="dd.MM.yyyy"
+          tooltip="StartDate"
+        />
+
+        <Label text="Contracttype" />
+        <ComboBox
+          editable="false"
+          selectedKey="{table>Contracttype}"
+          tooltip="Contracttype"
+        >
+          <items>
+            <core:Item
+              text="Chính thức"
+              key="Chính thức"
+            />
+            <core:Item
+              text="Thực tập"
+              key="Thực tập"
+            />
+          </items>
+        </ComboBox>
+
+        <Label text="Birthdate" />
+        <DatePicker
+          value="{table>Birthdate}"
+          editable="false"
+          displayFormat="dd.MM.yyyy"
+          tooltip="Birthdate"
+        />
+
+        <Label text="Address" />
+        <Input
+          value="{table>Address}"
+          editable="false"
+          tooltip="Address"
+        />
+
+        <Label text="Phone" />
+        <Input
+          value="{
+                        path: 'table>Phone',
+                        type: '.dataType.Phone'
+                    }"
+          editable="false"
+          tooltip="Phone"
+        />
+
+        <Label text="Plans" />
+        <Input
+          value="{table>Plans}"
+          editable="false"
+          tooltip="Plans"
+        />
+
+        <Label text="Salary (VND)" />
+        <Input
+          value="{
+                        path: 'table>Salary',
+                        type: 'sap.ui.model.type.Float',
+                        formatOptions: {
+                            decimalSeparator: ',',
+                            groupingSeparator: '.',
+                            emptyString: '',
+                            parseAsString: true,
+                            pattern: '#,###.##'
+                        }
+                    }"
+          editable="false"
+          tooltip="Salary"
+        />
+      </form:SimpleForm>
+    </content>
+    <buttons>
+      <Button
+        text="Close"
+        press="onCloseRowDetail"
+      />
+    </buttons>
+  </Dialog>
+</core:FragmentDefinition>

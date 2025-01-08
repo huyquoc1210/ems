@@ -10,9 +10,9 @@ import MessageToast from "sap/m/MessageToast";
 import type Event from "sap/ui/base/Event";
 import type Message from "sap/ui/core/message/Message";
 import type Messaging from "sap/ui/core/Messaging";
-import View from "sap/ui/core/mvc/View";
+import type View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import type ODataModel from "sap/ui/model/odata/v2/ODataModel";
+import ODataModel from "sap/ui/model/odata/v2/ODataModel";
 import type { ODataError, ODataResponse } from "sphinxjsc/com/ems/types/odata";
 import type { EmployeeItem } from "sphinxjsc/com/ems/types/pages/main";
 import Numeric from "sphinxjsc/com/ems/utils/Number";
@@ -25,12 +25,18 @@ import { EdmType } from "sap/ui/export/library";
 import type { ExcelColumn } from "sphinxjsc/com/ems/types/export";
 import type { Dict } from "sphinxjsc/com/ems/types/utlis";
 import Spreadsheet from "sap/ui/export/Spreadsheet";
+import type Router from "sap/ui/core/routing/Router";
+import type { ObjectIdentifier$TitlePressEvent } from "sap/m/ObjectIdentifier";
+import type Context from "sap/ui/model/Context";
+import type { RowActionItem$PressEvent } from "sap/ui/table/RowActionItem";
+import type Row from "sap/ui/table/Row";
 
 /**
  * @namespace sphinxjsc.com.ems.controller
  */
 export default class Main extends Base {
   private view: View;
+  private router: Router;
   private table: Table;
 
   // Fragments
@@ -43,6 +49,8 @@ export default class Main extends Base {
 
   public override onInit(): void {
     this.view = <View>this.getView();
+    this.router = this.getRouter();
+
     this.table = this.getControlById("table");
 
     // Messaging
@@ -81,7 +89,22 @@ export default class Main extends Base {
       }),
       "master"
     );
+
+    this.router.getRoute("RouteMain")?.attachMatched(this.onObjectMatched, this);
   }
+
+  private onObjectMatched = (event: Route$MatchedEvent) => {
+    this.getMetadataLoaded()
+      .then(() => {
+        this.onGetData();
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        this.setViewBusy(false);
+      });
+  };
 
   public async onExportExcel() {
     const binding = <EmployeeItem[]>this.getModel("table").getProperty("/rows");
@@ -196,19 +219,6 @@ export default class Main extends Base {
     this.getModel("table").setProperty("/busy", isBusy);
   }
 
-  private onObjectMatched(event: Route$MatchedEvent) {
-    this.getMetadataLoaded()
-      .then(() => {
-        this.onGetData();
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        this.setViewBusy(false);
-      });
-  }
-
   public onRowSelectionChange(event: Table$RowSelectionChangeEvent) {
     const tableModel = this.getModel("table");
     const rows = <EmployeeItem[]>tableModel.getProperty("/rows");
@@ -309,6 +319,132 @@ export default class Main extends Base {
 
     this.createRowDialog.open();
   }
+
+  public async onOpenRowDetail(event: ObjectIdentifier$TitlePressEvent) {
+    const control = event.getSource();
+
+    if (!this.rowDetailDialog) {
+      this.rowDetailDialog = await this.loadView("Detail");
+    }
+
+    const context = <Context>control.getBindingContext("table");
+    const path = context.getPath();
+
+    this.rowDetailDialog.bindElement({
+      path: path,
+      model: "table",
+    });
+
+    this.rowDetailDialog.open();
+  }
+
+  public onCloseRowDetail() {
+    this.rowDetailDialog?.close();
+  }
+
+  public onAfterCloseRowDetail(event: Dialog$AfterCloseEvent) {
+    const control = event.getSource();
+
+    control.unbindElement("table");
+  }
+
+  // Edit
+  public async onOpenEditRow(event: RowActionItem$PressEvent) {
+    const formModel = this.getModel("form");
+
+    const row = <Row>event.getParameter("row");
+    const rowValue = <EmployeeItem>row.getBindingContext("table")?.getObject();
+
+    formModel.setData(rowValue);
+
+    if (!this.editRowDialog) {
+      this.editRowDialog = await this.loadView("Edit");
+    }
+
+    this.editRowDialog.bindElement({
+      path: "/",
+      model: "form",
+    });
+
+    this.editRowDialog.open();
+  }
+
+  public onCloseRowEdit() {
+    this.editRowDialog?.close();
+  }
+
+  public onAfterCloseRowEdit(event: Dialog$AfterCloseEvent) {
+    const control = event.getSource();
+
+    control.unbindElement("form");
+
+    this.clearErrors();
+    this.getModel("form").setData({});
+  }
+
+  public onEditRow(event: Button$PressEvent) {
+    const control = event.getSource();
+    const dialog = <Dialog>control.getParent();
+
+    const oDataModel = this.getModel<ODataModel>();
+
+    const inputs = this.getControlsByFieldGroup<InputBase>({
+      control: this.editRowDialog,
+      groupId: "FormField",
+      visibility: "visible",
+    });
+
+    const isValid = this.validateControls(inputs);
+
+    if (!isValid) {
+      return;
+    }
+
+    this.clearErrors();
+
+    const value = <EmployeeItem>this.getModel("form").getData();
+
+    const key = oDataModel.createKey("/EmployeeSet", value);
+
+    dialog.setBusy(true);
+
+    new Promise((resolve, reject) => {
+      oDataModel.update(
+        key,
+        {
+          Fullname: value.Fullname,
+          Gender: value.Gender,
+          StartDate: value.StartDate,
+          Contracttype: value.Contracttype,
+          Birthdate: value.Birthdate,
+          Address: value.Address,
+          Phone: value.Phone,
+          Plans: value.Plans,
+          Salary: Numeric.toNumber(value.Salary),
+        },
+        { success: resolve, error: reject }
+      );
+    })
+      .then(() => {
+        MessageToast.show("Row was successfully Edit");
+        this.onGetData();
+      })
+      .catch(() => {
+        MessageToast.show("An error occurred, please try again later");
+      })
+      .finally(() => {
+        dialog.setBusy(false);
+
+        this.onCloseRowEdit();
+      });
+  }
+
+  // public onDeleteRow(event: Button$PressEvent) {
+  //   const oDataModel = this.getModel<ODataModel>();
+
+  //   const row =
+
+  // }
 
   private validateControls(controls: InputBase[]) {
     let isValid = false;
@@ -417,10 +553,6 @@ export default class Main extends Base {
   }
 
   // #endregion
-
-  // console.log(this.getOwnerComponent()?.getModel().read('/EmployeeSet',{success:(data) =>{
-  //   console.log(data);
-  // }}));
 
   private onGetData() {
     const oDataModel = this.getComponentModel();
